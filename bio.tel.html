@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>bio.tel</title>
+<style>
+:root{--bg:#f4f5f8;--fg:#14181f;--mu:#6b7585;--ln:#c9cfda;--go:#b38600;--ok:#0a8f4a;--bad:#d1304a;color-scheme:light dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#05070d;--fg:#e6eaf2;--mu:#7f8ca3;--ln:#243044;--go:#ffd700;--ok:#4dff9b;--bad:#ff5974}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:13px ui-monospace,Menlo,monospace;padding:12px;max-width:560px;margin:auto}
+h1{margin:0 0 8px;color:var(--go);font-size:18px;letter-spacing:.12em}
+textarea{width:100%;height:120px;background:transparent;color:var(--fg);border:1px solid var(--ln);padding:8px;font:inherit}
+.g{display:grid;grid-template-columns:repeat(9,1fr);gap:2px;margin:10px 0}.g i{aspect-ratio:1;border:1px solid var(--ln)}
+.g i.on{background:var(--mu)}.g i.h{outline:2px solid var(--go)}.g i.x{background:var(--ok)}
+.s{margin:6px 0}.ok{color:var(--ok)}.bad{color:var(--bad)}.mu{color:var(--mu)}
+pre{border:1px solid var(--ln);padding:8px;overflow-x:auto;margin:6px 0 0;font-size:11px}
+</style></head><body>
+<h1>bio.tel</h1>
+<textarea id="i" placeholder="Schreib Zeilen: was / wie (Zahlen, =) / warum (weil, damit, Regel)"></textarea>
+<div class="g" id="g"></div>
+<div class="s" id="s"></div><div class="s mu" id="k"></div>
+<pre id="o"></pre>
+<script>
+const $=id=>document.getElementById(id);
+const f=s=>[...new Set(s.toLowerCase().split('\n').map(l=>l.replace(/\s+/g,' ').trim()).filter(Boolean))].join('\n');
+const kind=l=>/weil|damit|regel|f\(f/.test(l)?'warum':/[0-9=×*^]/.test(l)?'wie':'was';
+const cell=s=>{let h=0;for(const c of s)h=(h*31+c.charCodeAt(0))%81;return h};
+$('g').innerHTML='<i></i>'.repeat(81);
+const cs=$('g').children;
+function run(){
+  const x=f($('i').value), L=x?x.split('\n'):[], G={was:[],wie:[],warum:[]};
+  L.forEach(l=>G[kind(l)].push(l));
+  const fix=x?cell(x):40, idem=f(x)===f(f(x)), miss=Object.keys(G).filter(k=>!G[k].length);
+  [...cs].forEach((c,n)=>{c.className=n==40?'h':''});
+  L.forEach(l=>cs[cell(l)].classList.add('on'));
+  cs[fix].classList.add('x');
+  $('s').innerHTML=!L.length?'<span class="mu">wartet …</span>'
+    :miss.length?'<span class="bad">fehlt: '+miss.join(', ').toUpperCase()+'</span>'
+    :'<span class="ok">3→1 wurzel · f(f(x))=f(x) '+(idem?'✓':'✗')+'</span>';
+  $('k').textContent='HOME 40 · FIX '+fix+' · t='+Math.min(81,L.length)+'/81 · was '+G.was.length+' wie '+G.wie.length+' warum '+G.warum.length;
+  $('o').textContent=JSON.stringify({wurzel:!miss.length,home:40,fix,t:Math.min(81,L.length),...G},null,1);
+}
+$('i').oninput=run;run();
+</script></body></html>

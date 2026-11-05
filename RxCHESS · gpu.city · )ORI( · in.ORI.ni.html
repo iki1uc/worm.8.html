@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>RYCHESS · gpu.city · )ORI( · in.ORI.ni</title>
+<style>
+:root{--bg:#050507;--pa:#0e0e14;--pb:#161620;--ln:#2a2a38;--gold:#ffd700;--cy:#39d3ff;--gr:#39ff88;--pk:#ff2d9a;--or:#ff7a18;--tx:#eceaf2;--mu:#9291a3;--sl:#1b1b26;--sd:#0f0f15;--pw:#f5f5f7;--pbk:#9a9aa6;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:light){:root:not([data-theme="dark"]){--bg:#f6f3ea;--pa:#fff;--pb:#efe9d8;--ln:#cfc8b4;--gold:#8a6a00;--cy:#006d95;--gr:#0a7a3c;--pk:#b3126b;--or:#b34700;--tx:#1b1a22;--mu:#5d5b6b;--sl:#e4dcc6;--sd:#bdb394;--pw:#fff;--pbk:#1b1a22}}
+:root[data-theme="dark"]{--bg:#050507}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--tx);font:13px/1.45 ui-monospace,Menlo,Consolas,monospace}
+.serif{font-family:Georgia,"Times New Roman",serif}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:var(--pa);border-bottom:1px solid var(--ln)}
+.hd{max-width:1600px;margin:auto;padding:8px 14px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.logo{width:32px;height:32px;border-radius:6px;background:var(--gold);color:#000;display:grid;place-items:center;font-weight:800}
+.sp{flex:1}h1{margin:0;font-size:13px;letter-spacing:.14em}.sub{font-size:10px;color:var(--mu)}
+button{font:inherit;color:var(--tx);background:var(--pb);border:1px solid var(--ln);padding:6px 12px;border-radius:999px;cursor:pointer}
+button:hover{border-color:var(--mu)}button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+button.on{background:var(--gold);color:#000;border-color:var(--gold);font-weight:700}button.cy.on{background:var(--cy);border-color:var(--cy)}button.or.on{background:var(--or);border-color:var(--or)}
+.bar{height:2px;background:linear-gradient(90deg,var(--gold),var(--cy),var(--pk))}
+main{max-width:1600px;margin:auto;padding:12px 14px 24px}
+.hero{font-size:clamp(24px,5vw,40px);line-height:1;margin:8px 0}.hero i{color:var(--gold);font-style:normal}.hero b{color:var(--pk)}
+.lead{color:var(--mu);max-width:90ch;margin:0 0 10px}
+#games{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px;margin-bottom:12px}
+.g{text-align:left;border-radius:12px;padding:10px}.g.on{border-color:var(--gold);background:var(--pb)}.g small{display:block;color:var(--mu);font-size:10px}.g em{display:block;font-style:normal;color:var(--pk);font-size:10px;margin-top:4px}
+.grid{display:grid;gap:12px;grid-template-columns:340px minmax(0,1fr) 340px;align-items:start}
+@media(max-width:1100px){.grid{grid-template-columns:1fr}}
+.p{background:var(--pa);border:1px solid var(--ln);border-radius:14px;padding:10px;min-width:0}.p+.p{margin-top:12px}
+h2{margin:0 0 8px;font-size:11px;letter-spacing:.16em}.mu{color:var(--mu)}
+#bd{display:grid;grid-template-columns:repeat(8,1fr);aspect-ratio:1;border:1px solid var(--ln);border-radius:10px;overflow:hidden}
+.c{position:relative;display:grid;place-items:center;font-size:clamp(20px,5vw,30px);background:var(--sl)}.c.d{background:var(--sd)}.c.l{box-shadow:inset 0 0 0 3px var(--gold)}
+.c .w{color:var(--pw);text-shadow:0 0 6px rgba(255,255,255,.5)}.c .b{color:var(--pbk)}.c small{position:absolute;font-size:8px;color:var(--mu)}
+.drache .c span{animation:pl 1.6s ease-in-out infinite}@keyframes pl{50%{opacity:.55}}
+.mv{display:flex;flex-wrap:wrap;gap:4px;margin-top:8px}.mv span{padding:1px 6px;border:1px solid var(--ln);border-radius:5px;font-size:10px;color:var(--mu)}.mv .cur{background:var(--gold);color:#000;border-color:var(--gold)}
+.ctl{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-top:8px}.ctl button{border-radius:8px}
+svg{width:100%;display:block;border:1px solid var(--ln);border-radius:10px;background:var(--pb)}
+.zs{display:grid;gap:4px;margin:8px 0}.zs div{display:flex;justify-content:space-between;border:1px solid var(--ln);border-radius:6px;padding:4px 8px}.zs .a{border-color:var(--gold);color:var(--gold)}
+.row{display:flex;flex-wrap:wrap;gap:6px}.row button{border-radius:8px}
+.ax{display:grid;grid-template-columns:1fr 1fr;gap:6px}.ax div{border:1px solid var(--ln);border-radius:8px;padding:6px}.ax b{display:block;font-size:16px}
+.f{border:1px solid var(--ln);border-radius:8px;padding:6px 8px;margin-bottom:6px;border-left:4px solid var(--c)}.f b{color:var(--c)}.f span{display:block;color:var(--mu);font-size:11px}
+.coin{display:flex;gap:12px;align-items:center}.coin big{font-size:28px;color:var(--gold);font-weight:800}
+.er #map{animation:er .6s ease-in-out 2}@keyframes er{50%{filter:saturate(2.2) brightness(1.4)}}
+.note{color:var(--mu);font-size:11px;margin-top:6px}
+@media(prefers-reduced-motion:reduce){.drache .c span,.er #map{animation:none}}
+</style>
+</head>
+<body>
+<header>
+ <div class="hd">
+  <div class="logo">RY</div>
+  <div><h1>RYCHESS · gpu.city · )ORI( · in.ORI.ni</h1><div class="sub">EYE BRAIN.OPEN OS · VULKAN · CLOSED NO-CLONE BUSINESS</div></div>
+  <span class="sp"></span>
+  <button id="eye">EYE.CLOSED</button><button id="brain" class="cy">BRAIN.CLOSED</button><button id="dr" class="or">DRACHE OFF</button>
+ </div>
+ <div class="bar"></div>
+</header>
+<main>
+ <h2 class="hero serif" style="letter-spacing:-.01em;font-weight:400">RYCHESS · gpu.city · )ORI( · <i>in.ORI.ni</i> · HISTORYCHESS <b>6 = HAND</b></h2>
+ <p class="lead">REAL_PC + CHESS = Kaiser Drache spielt Schach. Puzzle-Dreieck ABC: ID.html Mitte, index.html Darstellung, README Erklärung. Sechs Partien = HBT HTB BHT BTH THB TBH. 213.html COIN-ROOM, TOR.js = HH.tor, AIR6D_MOVE = Free Zone, My Zone, Vulkan.</p>
+ <div class="row" style="margin-bottom:10px"><button id="auto">AUTO</button><button id="rst" class="on">RESET (R)</button><span class="mu" style="align-self:center">Leertaste oder Pfeile = Zug, 3–8 = Partie</span></div>
+ <div id="games"></div>
+ <div class="grid">
+  <div>
+   <div class="p">
+    <h2 id="bt"></h2>
+    <div id="bd" role="img" aria-label="Schachbrett"></div>
+    <div class="mv" id="mv"></div>
+    <div class="note" id="cp"></div>
+    <div class="ctl"><button id="pv">◀ PREV</button><button id="nx" class="on">NEXT ▶</button><button id="ng">NEXT GAME</button></div>
+    <div class="note" id="ds"></div>
+   </div>
+  </div>
+  <div>
+   <div class="p">
+    <h2>PUZZLE-DREIECK ABC · AXIOM-TRIOLETT</h2>
+    <svg viewBox="0 0 600 360" aria-label="Puzzle-Dreieck">
+     <polygon points="300,40 70,300 530,300" fill="none" stroke="var(--gold)" stroke-width="1.5"/>
+     <polygon points="300,70 100,280 500,280" fill="var(--gold)" fill-opacity=".07" stroke="var(--gold)" stroke-opacity=".3"/>
+     <line x1="300" y1="50" x2="300" y2="310" stroke="var(--ln)" stroke-dasharray="4 6"/><line x1="80" y1="270" x2="520" y2="270" stroke="var(--ln)" stroke-dasharray="4 6"/>
+     <circle cx="300" cy="195" r="44" fill="var(--gold)" fill-opacity=".12" stroke="var(--gold)"/><text x="300" y="200" text-anchor="middle" font-size="14" font-weight="700" fill="var(--gold)">)ORI(</text>
+     <g text-anchor="middle" font-size="10" fill="var(--tx)"><circle cx="300" cy="40" r="14" fill="var(--pa)" stroke="var(--gold)"/><text x="300" y="44" fill="var(--gold)">A</text><text x="300" y="20">ID.html · Mitte</text>
+     <circle cx="70" cy="300" r="14" fill="var(--pa)" stroke="var(--cy)"/><text x="70" y="304" fill="var(--cy)">B</text><text x="70" y="332">index.html · Darstellung</text>
+     <circle cx="530" cy="300" r="14" fill="var(--pa)" stroke="var(--pk)"/><text x="530" y="304" fill="var(--pk)">C</text><text x="530" y="332">README.md · Erklärung</text></g>
+     <g font-size="10"><text x="345" y="85" fill="var(--cy)">SYN · 99 EDIT TOR</text><text x="365" y="268" fill="var(--or)">FLX · biegt ECHO</text><text x="40" y="240" fill="var(--gr)">VEC · gpu.city Vektor</text><text x="40" y="120" fill="var(--pk)">ARC · 999 NUTZ Archiv</text></g>
+    </svg>
+   </div>
+   <div class="p">
+    <h2>gpu.city MAP · )ORI( CENTER</h2>
+    <div class="row" id="zb" style="margin-bottom:8px"></div>
+    <svg id="map" viewBox="0 0 400 400" aria-label="gpu.city Karte"></svg>
+    <div class="zs" id="zs"></div>
+    <div class="row"><button id="co">CONSENT NO</button><button id="er" class="or">VULKAN ERUPT (10)</button></div>
+   </div>
+  </div>
+  <div>
+   <div class="p">
+    <h2>213.html COIN-ROOM · ECONOMY</h2>
+    <div class="coin"><big id="cn">0</big><span class="mu" id="ci"></span></div>
+    <div class="note">+1 pro Zug, +5 pro Schlagzug, doppelt mit Consent (my zone). Ausbruch kostet 10 und lässt den Drachen fliegen.</div>
+   </div>
+   <div class="p"><h2>ACHSEN · LIVE</h2><div class="ax" id="ax"></div></div>
+   <div class="p"><h2>9 / 99 / 999 / PQ / HOME / ORT / REAL_PC</h2><div id="fm"></div></div>
+   <div class="p" id="eyep" hidden><h2>EYE.OPEN SIEHT · filemap</h2><div class="mu" id="fl"></div></div>
+   <div class="p" id="brp" hidden><h2>BRAIN.OPEN · Verständnis</h2><div class="mu">PIPELINE 11 BIOS → 99 SYS · REAL_PC V2 = KAISER DRACHE.<br>RYCHESS = REAL_PC + CHESS. 6 = HAND = 6.html Aufzug.<br>SYN FLX VEC ARC = 4 Achsen = Zahnräder.<br>Ziel: RYCHESS_gpu_city_ORI.html im Repo iki1uc/RYCHESS.</div></div>
+  </div>
+ </div>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const GL={wK:'♔',wQ:'♕',wR:'♖',wB:'♗',wN:'♘',wP:'♙',bK:'♚',bQ:'♛',bR:'♜',bB:'♝',bN:'♞',bP:'♟'},F='abcdefgh';
+const G=[
+{k:3,n:'Unsterbliche',y:1851,p:'Anderssen – Kieseritzky',e:'Angstschweiß · Opferrausch · Kaiser wirft Krone',d:'Die Ur-Partie. Opfer wie Vulkanausbruch. 6 = HAND = alle Wege führen zum Matt.',m:'e2e4 e7e5 f2f4 e5f4 f1c4 d8h4 e1f1 b7b5 c4b5 g8f6 g1f3 h4h6 d2d3 f6h5 f3h4 h6g5 h4f5 c7c6 g2g4 h5f6 h1g1 c6b5 h2h4 g5g6 h4h5 g6g5 d1f3 f6g8 c1f4 g5f6 b1c3 b8c6 c3d5 f6b2 f4d6 c8a6 g4g5 a6d3 d5c7 e8d8 f3f6 g8f6 g5f6 b2a1 g1g8'},
+{k:4,n:'Opernpartie',y:1858,p:'Morphy – Herzog & Graf',e:'Logenblick · Taktgewitter · Drache lauscht',d:'Paris Oper. 3 Züge Turbo. TOR.js wirbelt die Loge.',m:'e2e4 e7e5 g1f3 d7d6 d2d4 c8g4 d4e5 g4f3 d1f3 d6e5 f1c4 g8f6 f3b3 d8e7 b1c3 c7c6 c1g5 b7b5 c4b5 c6b5 b3b5 b8d7 e1c1 h8d8 d1d7 d8d7 h1d1 e7e6 b5a8 f6c6 a8f8'},
+{k:5,n:'Evergreen',y:1852,p:'Anderssen – Dufresne',e:'Immergrün · Waldbrand · FLX biegt ECHO',d:'FLX-Achse biegt. Läufer schneidet wie Vulkanflanke.',m:'e2e4 e7e5 g1f3 b8c6 f1c4 f8c5 b2b4 c5b4 c2c3 b4a5 d2d4 e5d4 e1g1 d4d3 d1b3 d8f6 e4e5 f6g6 f1e1 g8e7 c1a3 b7b5 b3b5 h8b8 b5a4 a5b6 a3d6 c8a6 a4b4 a6b7 e5e6 f7e6 d6e7'},
+{k:6,n:'Fischer–Spassky',y:1972,p:'Fischer – Spassky, Partie 6',e:'Kalte Fusion · BIOS kalibriert · q702 leuchtet',d:'HAND = 6. Fischer öffnet Free Zone mit c4. VEC fährt.',m:'c2c4 g8f6 b1c3 e7e6 g1f3 d7d5 d2d4 f8b4 e2e3 e8g8 f1d3 c7c5 e3e4 d5c4 d3c4 b8c6 d4d5 e6d5 e4d5 c6e7 f1e1 b4c3 b2c3 c8f5 c4d3 f5d3 d1d3 d8d6 c3c4 f8e8 c1f4 d6b6 d5d6 e8e4 d3e4 f6e4 e1e4 b6b2 e4e7'},
+{k:7,n:'Kasparov – Deep Blue',y:1997,p:'Kasparov – Deep Blue II',e:'Maschine riecht Angst · ARC speichert Puls · 999 NUTZ',d:'ARC-Achse archiviert. Mensch gegen GPU-Pyramide. 44 GPU HOLO.',m:'e2e4 c7c6 d2d4 d7d5 b1c3 d5e4 c3e4 b8d7 e4g5 g8f6 f1d3 e7e6 g1f3 h7h6 g5e4 f6d5 e1g1 d7f6 f1e1 f6e4 d3e4 d5f6 e4d3 f8d6 b2b3 e8g8 c1b2 d8e7 c2c4 c6c5 d4c5 d6c5 b2f6 e7f6 c4c5 f6c3 e1e3 c3c5 g1h1'},
+{k:8,n:'Unsterbliche Remis',y:1872,p:'Hamppe – Meitner',e:'Ewigkeitsschleife · 9 EVIG · in.ORI.ni',d:'Remis = TOR geschlossen. 9 steht. )ORI( goldener Kern ruht.',m:'e2e4 e7e5 b1c3 f8c5 g1a3 g8f6 g2g3 d7d6 f1g2 c7c6 d2d3 c8g4 d1d2 b8d7 c3d1 d8e7 d1e3 g4h3 e3g4 h3g4 d2g5 f6g4 g5g4 h7h5 g4h5 g7g6 h5g6 h8h5 g2f3 h5h3 f3g2 h3h5'}];
+const FM=[['9.html','EVIG','Zustand fertig ewig','var(--gold)'],['99.html','EDIT TOR 9+9 · HH.tor','SYN synchronisiert MIA und ECHO','var(--cy)'],['999.html','NUTZ BENCH 111–999','ARC speichert Pulse aus PUL ION MIA ECHO','var(--gr)'],['PQ.html','nur PQ','P Q dual · 2t höchste','var(--pk)'],['HOME.html','HOME BIOS RADAR SAT ICH DU','q702 USB3 WiFi7 unter Strom · Einwilligung = my zone','var(--gr)'],['ORT.html','ORT, Beispiel Ort von 9','UNI ORT BIOS + q702','var(--gold)'],['REAL_PC.html','V2 PC = Kaiser = Drache','55 PC = Kaiser = Drache fliegt · 44 GPU PYRAMIDE','var(--or)']];
+const FL=['CHESS.html — main engine','index.html — Replay-Startpunkt (Darstellung)','213.html — COIN-ROOM, Economy','AIR.html — AIR-Achsen (6D)','AIR6D_MOVE.js — Vulkan-Bewegung','TOR.js — Tornado-Flow, HH.tor','syn.js — FLX_CORE, VEC_CORE (Achsen)','FORM_ENGINE, FORM_MATRIX — Form'];
+const ix=(f,r)=>(8-r)*8+f;
+function start(){const b=Array(64).fill(null),o='RNBQKBNR';for(let i=0;i<8;i++){b[i]='b'+o[i];b[8+i]='bP';b[48+i]='wP';b[56+i]='w'+o[i]}return b}
+function step(b,m){const a=F.indexOf(m[0]),c=F.indexOf(m[2]);if(a<0||c<0)return null;const f=ix(a,+m[1]),t=ix(c,+m[3]),p=b[f];if(!p||(b[t]&&b[t][0]===p[0]))return null;
+ const n=b.slice();let cap=n[t];
+ if(p[1]==='K'&&Math.abs(c-a)===2){const k=c>a,rf=ix(k?7:0,+m[1]),rt=ix(k?5:3,+m[1]);if(n[rf]){n[rt]=n[rf];n[rf]=null}}
+ if(p[1]==='P'&&a!==c&&!cap){const q=ix(c,+m[1]);if(n[q]&&n[q][1]==='P'){cap=n[q];n[q]=null}}
+ n[t]=p;n[f]=null;if(p[1]==='P'&&(m[3]==='8'||m[3]==='1'))n[t]=p[0]+'Q';
+ return{b:n,cap,p,f,t}}
+G.forEach(g=>{g.mv=g.m.split(' ');const S=[{b:start(),f:-1,t:-1,z:'ori',caps:0,cp:[],skip:0,w:0,bl:0}];
+ g.mv.forEach((m,i)=>{const q=S[S.length-1],r=step(q.b,m),wh=i%2===0;
+  if(!r){S.push({...q,f:-1,t:-1,skip:q.skip+1});return}
+  const k=r.p[1],z=k==='N'?'vulkan':k==='B'?'free':k==='R'?'my':(k==='Q'||k==='K')?'ori':q.z;
+  S.push({b:r.b,f:r.f,t:r.t,z,caps:q.caps+(r.cap?1:0),cp:r.cap?[...q.cp,r.cap]:q.cp,skip:q.skip,w:q.w+(wh?1:0),bl:q.bl+(wh?0:1),cap:!!r.cap})});
+ g.S=S});
+const ST={g:0,t:0,auto:!matchMedia('(prefers-reduced-motion: reduce)').matches,eye:false,brain:false,dr:false,consent:false,spent:0,zo:null,er:false};
+const cur=()=>G[ST.g].S[ST.t];
+const coins=()=>{const S=G[ST.g].S;let c=0;for(let i=1;i<=ST.t;i++)c+=(1+(S[i].cap?5:0))*(ST.consent?2:1);return c-ST.spent};
+function go(d){const n=G[ST.g].mv.length;ST.t=Math.max(0,Math.min(n,ST.t+d));ST.zo=null;render()}
+function pick(i){ST.g=(i+G.length)%G.length;ST.t=0;ST.spent=0;ST.zo=null;render()}
+function render(){const g=G[ST.g],s=cur(),n=g.mv.length,zone=ST.zo||s.z;
+ $('games').innerHTML=G.map((x,i)=>`<button class="g ${i===ST.g?'on':''}" data-g="${i}"><b>${x.k}</b> ${x.n}<small>${x.y} · ${x.p}</small><em>${x.e}</em></button>`).join('');
+ $('bt').textContent=`HISTORYCHESS · ${g.n.toUpperCase()} · ${ST.t}/${n}`;
+ $('bd').className=ST.dr?'drache':'';
+ $('bd').innerHTML=s.b.map((p,i)=>{const r=Math.floor(i/8),c=i%8;return`<div class="c ${(r+c)%2?'d':''} ${i===s.f||i===s.t?'l':''}">${p?`<span class="${p[0]}">${GL[p]}</span>`:''}${r===7?`<small style="right:2px;bottom:0">${F[c]}</small>`:''}${c===0?`<small style="left:2px;top:0">${8-r}</small>`:''}</div>`}).join('');
+ $('mv').innerHTML=g.mv.slice(Math.max(0,ST.t-8),ST.t+5).map((m,k)=>{const i=Math.max(0,ST.t-8)+k;return`<span class="${i===ST.t-1?'cur':''}">${i+1}.${m}</span>`}).join('');
+ $('cp').textContent=s.cp.length?'Geschlagen: '+s.cp.map(p=>GL[p]).join(' ')+(s.skip?` · ${s.skip} Zug/Züge der Vorlage nicht ausführbar`:''):(s.skip?`${s.skip} Zug/Züge der Vorlage nicht ausführbar`:'');
+ $('ds').innerHTML=`<b style="color:var(--tx)">${g.d}</b> · ${g.e}`;
+ $('eye').textContent='EYE.'+(ST.eye?'OPEN':'CLOSED');$('eye').className=ST.eye?'on':'';
+ $('brain').textContent='BRAIN.'+(ST.brain?'OPEN':'CLOSED');$('brain').className='cy'+(ST.brain?' on':'');
+ $('dr').textContent='DRACHE '+(ST.dr?'ON':'OFF');$('dr').className='or'+(ST.dr?' on':'');
+ $('auto').textContent=ST.auto?'AUTO ON':'AUTO OFF';$('auto').className=ST.auto?'on':'';
+ $('eyep').hidden=!ST.eye;$('brp').hidden=!ST.brain;
+ $('co').textContent=ST.consent?'CONSENT YES · HOME BIOS':'CONSENT NO';$('co').className=ST.consent?'on':'';
+ $('zb').innerHTML=['free','my','vulkan','ori'].map(z=>`<button data-z="${z}" class="${zone===z?'on':''}" style="border-radius:8px">${z.toUpperCase()}</button>`).join('');
+ const zc={free:'var(--cy)',my:'var(--gr)',vulkan:'var(--or)',ori:'var(--gold)'};
+ const dots=s.b.map((p,i)=>p?i:-1).filter(i=>i>=0).slice(0,12).map((v,k)=>`<circle cx="${60+k*24}" cy="372" r="4" fill="${zc[zone]}"/>`).join('');
+ $('map').innerHTML=`<rect width="400" height="400" fill="var(--cy)" fill-opacity=".06" stroke="var(--cy)" stroke-dasharray="6 8" opacity="${zone==='free'?1:.5}"/><text x="12" y="20" font-size="10" font-weight="700" fill="var(--cy)">FREE ZONE · eye.open vulkan</text>
+ <rect x="60" y="60" width="280" height="280" fill="var(--gr)" fill-opacity=".08" stroke="var(--gr)" stroke-width="${zone==='my'?3:1}"/><text x="68" y="78" font-size="10" fill="var(--gr)">MY ZONE · consent q702</text>
+ <circle cx="200" cy="200" r="110" fill="var(--or)" fill-opacity="${ST.er?.4:.14}" stroke="var(--or)" stroke-width="${zone==='vulkan'?3:1}" stroke-dasharray="${zone==='vulkan'?0:'8 6'}"/><text x="200" y="105" text-anchor="middle" font-size="10" fill="var(--or)">VULKAN · TOR.js</text>
+ <circle cx="200" cy="200" r="46" fill="var(--gold)" fill-opacity=".2" stroke="var(--gold)" stroke-width="${zone==='ori'?4:2}"/><text x="200" y="204" text-anchor="middle" font-size="13" font-weight="800" fill="var(--gold)">)ORI(</text><text x="200" y="218" text-anchor="middle" font-size="8" fill="var(--mu)">in.ORI.ni</text>
+ <g fill="none" stroke-width="1.2" opacity=".75"><path d="M80 320 Q150 180 200 200" stroke="var(--cy)" stroke-dasharray="3 4"/><path d="M320 80 Q250 150 200 200" stroke="var(--gr)" stroke-dasharray="3 4"/><path d="M80 80 Q200 120 200 200" stroke="var(--pk)"/><path d="M320 320 Q220 250 200 200" stroke="var(--or)"/></g>${dots}`;
+ const st={free:['free zone','ACTIVE · eye.open','idle'],my:['my zone','ACTIVE · consent','idle'],vulkan:['vulkan','ERUPTION · DRACHE','dormant'],ori:['in.ORI.ni','CENTER · )ORI(','locked']};
+ $('zs').innerHTML=Object.keys(st).map(z=>`<div class="${zone===z?'a':''}"><span>● ${st[z][0]}</span><span>${zone===z?st[z][1]:st[z][2]}</span></div>`).join('');
+ $('cn').textContent=coins();$('ci').textContent=`Zug ${ST.t} · ${s.caps} Schlagzüge · ausgegeben ${ST.spent}`;
+ $('ax').innerHTML=[['SYN',Math.round(ST.t/n*100)+' %','Lock-Werte, synchronisiert MIA+ECHO'],['FLX',s.caps,'Bend+Curve, Schlagzüge biegen ECHO'],['VEC',`${s.w}·${s.bl}·${s.caps}`,'x:Weiß y:Schwarz z:Schlag'],['ARC',ST.t,'PUL ION MIA ECHO archiviert']].map(a=>`<div><span class="mu">${a[0]}</span><b>${a[1]}</b><span class="mu" style="font-size:10px">${a[2]}</span></div>`).join('');
+ $('fl').innerHTML=FL.map(x=>`<div>● ${x}</div>`).join('');
+ document.body.classList.toggle('er',ST.er)}
+$('fm').innerHTML=FM.map(f=>`<div class="f" style="--c:${f[3]}"><b>${f[0]}</b> ${f[1]}<span>${f[2]}</span></div>`).join('');
+document.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;
+ if(b.dataset.g!==undefined)pick(+b.dataset.g);else if(b.dataset.z){ST.zo=b.dataset.z;render()}});
+$('pv').onclick=()=>go(-1);$('nx').onclick=()=>go(1);$('ng').onclick=()=>pick(ST.g+1);$('rst').onclick=()=>{ST.t=0;ST.spent=0;ST.zo=null;render()};
+$('auto').onclick=()=>{ST.auto=!ST.auto;render()};$('eye').onclick=()=>{ST.eye=!ST.eye;render()};$('brain').onclick=()=>{ST.brain=!ST.brain;render()};$('dr').onclick=()=>{ST.dr=!ST.dr;render()};
+$('co').onclick=()=>{ST.consent=!ST.consent;render()};
+$('er').onclick=()=>{if(coins()<10){$('ci').textContent='Zu wenige Coins für den Ausbruch (10 nötig).';return}ST.spent+=10;ST.zo='vulkan';ST.dr=true;ST.er=true;render();setTimeout(()=>{ST.er=false;render()},1300)};
+addEventListener('keydown',e=>{if(e.key===' '||e.key==='ArrowRight'){e.preventDefault();go(1)}else if(e.key==='ArrowLeft')go(-1);else if(e.key==='r'||e.key==='R'){$('rst').click()}else if('345678'.includes(e.key)&&e.key)pick(+e.key-3)});
+setInterval(()=>{if(!ST.auto)return;if(ST.t>=G[ST.g].mv.length){ST.auto=false;render();return}go(1)},900);
+render();
+</script>
+</body>
+</html>

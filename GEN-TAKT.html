@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>GEN-TAKT</title>
+<style>
+:root{--bg:#f4f5f8;--p:#fff;--l:#c9cfda;--fg:#14181f;--mu:#6b7585;--go:#b38600;--cy:#007c8c;--ok:#0a8f4a;--wa:#b87500;--bad:#d1304a;color-scheme:light dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#02060a;--p:#060d14;--l:#14242f;--fg:#d7e6ee;--mu:#7d97a6;--go:#e8b64c;--cy:#37d5e8;--ok:#4ade80;--wa:#fbbf24;--bad:#f87171}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:13px ui-monospace,Menlo,monospace;padding:12px;max-width:560px;margin:auto}
+h1{margin:0 0 10px;color:var(--go);font-size:16px;letter-spacing:.2em}
+.p{background:var(--p);border:1px solid var(--l);padding:12px;margin-bottom:10px}
+.t{color:var(--mu);font-size:10px;letter-spacing:.2em;text-transform:uppercase}
+.big{font-size:38px;font-weight:800;font-variant-numeric:tabular-nums;margin:2px 0}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px}
+button,select{background:transparent;color:var(--cy);border:1px solid var(--cy);padding:8px 12px;font:inherit;cursor:pointer}
+button:disabled{opacity:.35;cursor:default}
+select{color:var(--fg);border-color:var(--l)}
+.bar{height:10px;border:1px solid var(--l);margin-top:8px}.bar i{display:block;height:100%;background:var(--cy)}
+.chain{display:flex;gap:4px;flex-wrap:wrap}
+.n{min-width:44px;text-align:center;border:1px solid var(--l);padding:8px 6px;font-size:15px;color:var(--mu)}
+.n.run{color:var(--cy);border-color:var(--cy)}.n.ready{color:var(--wa);border-color:var(--wa)}.n.pass{color:var(--ok);border-color:var(--ok)}
+.s{font-weight:800;letter-spacing:.1em}.ok{color:var(--ok)}.wa{color:var(--wa)}.bad{color:var(--bad)}
+label{display:flex;gap:6px;align-items:center;color:var(--mu)}
+</style></head><body>
+<h1>GEN-TAKT</h1>
+<div class="p"><div class="t">Kette · 3ⁿ · ein Knoten nach dem anderen</div><div class="chain" id="ch" style="margin-top:8px"></div></div>
+<div class="p">
+<div class="t" id="nm"></div><div class="big" id="cd"></div>
+<div class="bar"><i id="fill"></i></div>
+<div class="row"><span class="s" id="st"></span></div>
+<div class="row">
+<button id="go">START</button><button id="ps" disabled>PASS</button><button id="rs">RESET</button>
+<select id="u" aria-label="Einheit"><option value="1">Sekunden</option><option value="60">Minuten</option></select>
+<label><input type="checkbox" id="au"> AUTO</label>
+</div>
+<div class="t" id="info" style="margin-top:10px"></div>
+</div>
+<script>
+const $=i=>document.getElementById(i),pad=n=>String(n).padStart(2,'0');
+const NODES=[['◉',1],['3',3],['9',9],['27',27],['81',81],['◆',3],['△',3],['▣',3],['3↺',3]];
+const fmt=s=>{s=Math.max(0,Math.ceil(s));return pad(Math.floor(s/60))+':'+pad(s%60)};
+let i=0,el=0,run=false,over=0,cycle=0,last=0;const done=[];
+$('ch').innerHTML=NODES.map((n,k)=>'<div class="n" id="n'+k+'">'+n[0]+'</div>').join('');
+const dur=()=>NODES[i][1]*(+$('u').value);
+$('go').onclick=()=>{run=!run;last=performance.now();draw()};
+$('rs').onclick=()=>{i=0;el=0;over=0;cycle=0;run=false;done.length=0;draw()};
+$('u').onchange=()=>{el=0;over=0;draw()};
+$('ps').onclick=()=>advance();
+function advance(){
+  done[i]=true;
+  if(i===NODES.length-1){i=0;cycle++;done.length=0}else i++;
+  el=0;over=0;draw();
+}
+function tick(){
+  const now=performance.now(),dt=(now-last)/1000;last=now;
+  if(run){
+    if(el<dur()){el=Math.min(dur(),el+dt)}
+    else if($('au').checked){advance();return}
+    else over+=dt;
+  }
+  draw();
+}
+function draw(){
+  const d=dur(),ready=el>=d;
+  NODES.forEach((n,k)=>{$('n'+k).className='n'+(done[k]?' pass':k===i?(ready?' ready':run?' run':''):'')});
+  $('nm').textContent='Knoten '+(i+1)+'/'+NODES.length+' · '+NODES[i][0]+' · Zyklus '+(cycle+1);
+  $('cd').textContent=fmt(d-el);
+  $('fill').style.width=(el/d*100)+'%';
+  const st=$('st');
+  if(!run&&el===0&&!over){st.textContent='BEREIT ZUM START';st.className='s'}
+  else if(!ready){st.textContent=run?'LÄUFT':'PAUSE';st.className='s '+(run?'ok':'wa')}
+  else{st.textContent='ZEIT UM · WARTET AUF PASS · +'+fmt(over);st.className='s '+(over>d*0.2?'bad':'wa')}
+  $('ps').disabled=!ready;
+  $('go').textContent=run?'PAUSE':'START';
+  $('info').textContent='Ohne PASS geht es nicht weiter. Keine Bestätigung ist kein PASS. AUTO bestätigt selbst.';
+}
+setInterval(tick,100);draw();
+</script></body></html>

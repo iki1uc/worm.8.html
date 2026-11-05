@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>ZEIT · Uhr · Laufzeit · Ablauf</title>
+<style>
+:root{--bg:#f4f5f8;--p:#fff;--l:#c9cfda;--fg:#14181f;--mu:#6b7585;--go:#b38600;--cy:#007c8c;--ok:#0a8f4a;--wa:#b87500;--bad:#d1304a;color-scheme:light dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#02060a;--p:#060d14;--l:#14242f;--fg:#d7e6ee;--mu:#7d97a6;--go:#e8b64c;--cy:#37d5e8;--ok:#4ade80;--wa:#fbbf24;--bad:#f87171}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--fg);font:13px ui-monospace,Menlo,monospace;padding:12px;max-width:560px;margin:auto}
+h1{margin:0 0 10px;color:var(--go);font-size:16px;letter-spacing:.2em}
+.p{background:var(--p);border:1px solid var(--l);padding:12px;margin-bottom:10px}
+.t{color:var(--mu);font-size:10px;letter-spacing:.2em;text-transform:uppercase}
+.big{font-size:34px;font-weight:800;font-variant-numeric:tabular-nums;margin:2px 0}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px}
+input{background:transparent;color:var(--fg);border:1px solid var(--l);padding:8px;font:inherit;width:90px}
+button{background:transparent;color:var(--cy);border:1px solid var(--cy);padding:8px 12px;font:inherit;cursor:pointer}
+.bar{height:10px;border:1px solid var(--l);margin-top:8px}.bar i{display:block;height:100%;background:var(--cy);transition:width .25s}
+.s{font-weight:800;letter-spacing:.1em}.ok{color:var(--ok)}.wa{color:var(--wa)}.bad{color:var(--bad)}
+@media(prefers-reduced-motion:no-preference){.blink{animation:b 1s steps(2) infinite}@keyframes b{50%{opacity:.3}}}
+</style></head><body>
+<h1>ZEIT</h1>
+<div class="p"><div class="t">Uhr</div><div class="big" id="clk"></div><div class="mu t" id="dat"></div></div>
+<div class="p"><div class="t">Laufzeit seit Start</div><div class="big" id="run"></div>
+<div class="row"><button id="rst">NEU STARTEN</button></div></div>
+<div class="p"><div class="t">Ablauf · Countdown</div><div class="big" id="cd"></div>
+<div class="bar"><i id="fill"></i></div>
+<div class="row"><span class="s" id="st"></span><span class="t" id="end"></span></div>
+<div class="row"><input id="min" type="number" min="1" max="1440" value="30" aria-label="Minuten"><span class="t">Minuten</span><button id="set">SETZEN</button></div></div>
+<script>
+const $=i=>document.getElementById(i),pad=n=>String(n).padStart(2,'0');
+const hms=ms=>{ms=Math.max(0,Math.floor(ms/1000));return pad(Math.floor(ms/3600))+':'+pad(Math.floor(ms%3600/60))+':'+pad(ms%60)};
+let t0=Date.now(),end=0,total=0;
+try{const s=JSON.parse(localStorage.getItem('zeit')||'null');if(s&&s.end>Date.now()){end=s.end;total=s.total}}catch(e){}
+function save(){try{localStorage.setItem('zeit',JSON.stringify({end,total}))}catch(e){}}
+$('set').onclick=()=>{const m=Math.min(1440,Math.max(1,+$('min').value||1));total=m*60000;end=Date.now()+total;save();tick()};
+$('rst').onclick=()=>{t0=Date.now();tick()};
+function tick(){
+  const n=new Date(),now=n.getTime();
+  $('clk').textContent=n.toLocaleTimeString('de-DE');
+  $('dat').textContent=n.toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+  $('run').textContent=hms(now-t0);
+  const st=$('st');
+  if(!end){$('cd').textContent='--:--:--';$('fill').style.width='0%';st.textContent='KEIN ABLAUF GESETZT';st.className='s';$('end').textContent='';document.title='ZEIT';return}
+  const left=end-now,pct=Math.max(0,left/total*100);
+  $('cd').textContent=hms(left);$('fill').style.width=pct+'%';
+  $('end').textContent='Ablauf um '+new Date(end).toLocaleTimeString('de-DE');
+  if(left<=0){st.textContent='ABGELAUFEN';st.className='s bad blink';document.title='ABGELAUFEN';}
+  else if(pct>50){st.textContent='LÄUFT · PASS';st.className='s ok';document.title=hms(left)}
+  else if(pct>=20){st.textContent='WENIGER ALS HALB · WARN';st.className='s wa';document.title=hms(left)}
+  else{st.textContent='GLEICH ZU ENDE · FAIL';st.className='s bad';document.title=hms(left)}
+}
+setInterval(tick,250);tick();
+</script></body></html>

@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>RINGWERK</title>
+<style>
+:root{color-scheme:dark;--bg:#070b13;--p:#101827;--l:#2b3a55;--fg:#eaf1ff;--dim:#91a0b8;--gold:#ffd65a;--cyan:#4de7f5;--ok:#6cf0a7;--bad:#ff7185}
+*{box-sizing:border-box}body{margin:0;padding:14px;background:var(--bg);color:var(--fg);font:14px/1.45 ui-monospace,monospace}main{max-width:1000px;margin:auto}
+header,.panel{background:var(--p);border:1px solid var(--l);border-radius:12px;padding:14px;margin-bottom:12px}
+header{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}h1{margin:0;color:var(--gold);letter-spacing:.1em}h2{font-size:12px;color:var(--dim);letter-spacing:.14em}
+.layout{display:grid;grid-template-columns:1fr 1fr;gap:12px}@media(max-width:720px){.layout{grid-template-columns:1fr}}
+.ring,.answers,.pieces{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.station,.answer,.piece{border:1px solid var(--l);border-radius:8px;padding:10px;background:#0a1220}
+.station b,.answer b{display:block;color:var(--cyan);font-size:16px}.muted,small{color:var(--dim);font-size:11px}
+#board{display:grid;grid-template-columns:repeat(9,1fr);gap:3px}.sq{aspect-ratio:1;background:#0a1220;border:1px solid var(--l);display:grid;place-items:center;border-radius:3px;font-size:18px;position:relative}.sq:nth-child(odd){background:#142034}.sq.home{outline:2px solid var(--gold)}.sq.here{background:#24475a}.sq small{position:absolute;right:2px;bottom:0;font-size:7px}
+button{background:#142034;color:var(--fg);border:1px solid #526582;border-radius:6px;padding:8px 10px;font:inherit;font-size:12px;cursor:pointer}button.primary{color:var(--cyan);border-color:var(--cyan)}button:disabled{opacity:.4}.controls{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+.answer{text-align:left;cursor:pointer}.answer span{display:block;color:var(--dim);font-size:10px}.question{font-size:17px;color:var(--gold)}#feedback{padding:10px;margin-top:10px;border-left:3px solid var(--l);min-height:45px;color:var(--dim)}#feedback.good{border-color:var(--ok);color:var(--ok)}#feedback.bad{border-color:var(--bad);color:var(--bad)}
+.rule{padding:6px 0;border-top:1px solid var(--l);font-size:12px}.rule b{color:var(--gold)}#log{max-height:140px;overflow:auto;color:var(--dim);font-size:11px}.tag{border:1px solid var(--l);padding:3px 8px;border-radius:20px;color:var(--dim);font-size:11px}
+</style></head><body><main>
+<header><div><small>SPIELFELD · FIGUR · REGELWERK</small><h1>RINGWERK</h1><div class="muted">Frage → Antwort → Zug → Prüfung</div></div><div><span class="tag">81 FELDER</span> <span class="tag">3 STATIONEN</span> <span class="tag" id="score">PUNKTE 0</span></div></header>
+<div class="layout"><div>
+<section class="panel"><h2>DER RING · WER MACHT WAS?</h2><div class="ring">
+<div class="station"><b>LINK</b><small>Quelle, Verweis, Ziel und Übergabe</small></div>
+<div class="station"><b>NET</b><small>Übertragungsweg, Verbindung, Erreichbarkeit</small></div>
+<div class="station"><b>SYS</b><small>Prozess, Ausführung, Zustand und Fehlerstatus</small></div>
+</div><p class="muted">Das sind die Spielrollen. Das Spiel baut keine echte Netzwerkverbindung auf und startet keinen Systemdienst.</p></section>
+<section class="panel"><h2>9 × 9 SPIELFELD · HOME 40</h2><div id="board"></div><div class="controls"><button onclick="resetGame()">RESET</button><button onclick="undo()">UNMOVE</button><button class="primary" onclick="nextQuestion()">NÄCHSTE FRAGE</button></div><p class="muted" id="position">HOME 40 · Figur auf Feld 40</p></section>
+<section class="panel"><h2>FIGUREN</h2><div class="pieces">
+<div class="piece">♟ Bauer<br><small>Einzelschritt</small></div><div class="piece">♞ Springer<br><small>Sprung</small></div><div class="piece">♝ Läufer<br><small>Diagonale</small></div><div class="piece">♜ Turm<br><small>Gerade</small></div><div class="piece">♛ Dame<br><small>Kombination</small></div><div class="piece">♚ König<br><small>HOME / Fixpunkt</small></div>
+</div></section></div><div>
+<section class="panel"><h2>FRAGE-ANTWORT-SPIEL</h2><div class="muted" id="round">RUNDE 1 / 6</div><p class="question" id="question"></p><div class="answers" id="answers"></div><div id="feedback">Wähle LINK, NET oder SYS.</div><div class="controls"><button onclick="move()">MOVE</button><button class="primary" onclick="use()">USE · ANTWORT PRÜFEN</button></div></section>
+<section class="panel"><h2>REGELWERK</h2>
+<div class="rule"><b>1 FRAGE</b> – Aufgabe lesen.</div><div class="rule"><b>2 ANTWORT</b> – LINK, NET oder SYS zuordnen.</div><div class="rule"><b>3 MOVE</b> – Figur ein Feld weiterziehen.</div><div class="rule"><b>4 UNMOVE</b> – letzten Zug zurücknehmen.</div><div class="rule"><b>5 USE</b> – Antwort prüfen und Ergebnis zeigen.</div><div class="rule"><b>6 USER</b> – Mensch sieht Ergebnis und entscheidet den nächsten Zug.</div></section>
+<section class="panel"><h2>SPIELPROTOKOLL</h2><div id="log">Noch keine Züge.</div></section></div></div>
+</main>
+<script>
+'use strict';
+const questions=[
+['Wer macht LINK?','LINK','LINK ordnet Quelle, Verweis und Ziel zu.'],
+['Wer macht NET?','NET','NET beschreibt Übertragungsweg und Erreichbarkeit.'],
+['Wer macht SYS?','SYS','SYS beschreibt Prozess, Ausführung und Zustand.'],
+['Eine Datei-URL soll als Quelle und Ziel referenziert werden. Wer?','LINK','Der Verweis gehört zu LINK.'],
+['Daten sollen von einem Rechner zum anderen übertragen werden. Wer?','NET','Der Transportweg gehört zu NET.'],
+['Ein Prozess meldet einen Fehlerstatus. Wer?','SYS','Prozess- und Fehlerstatus gehören zu SYS.']];
+let qi=0,score=0,pos=40,choice=null,checked=false,history=[],turn=0;
+const $=id=>document.getElementById(id);
+function board(){ $('board').innerHTML=Array.from({length:81},(_,i)=>`<div class="sq ${i===40?'home ':''}${i===pos?'here':''}">${i===pos?['♟','♞','♝','♜','♛','♚'][turn%6]:''}<small>${i}</small></div>`).join('');$('position').textContent=`HOME 40 · Figur auf Feld ${pos}`;}
+function question(){let q=questions[qi];$('round').textContent=`RUNDE ${qi+1} / ${questions.length}`;$('question').textContent=q[0];$('answers').innerHTML=['LINK','NET','SYS'].map(x=>`<button class="answer" onclick="pick('${x}')"><b>${x}</b><span>${x==='LINK'?'Verweis / Ziel':x==='NET'?'Weg / Verbindung':'Prozess / Status'}</span></button>`).join('');$('feedback').className='';$('feedback').textContent='Wähle die passende Station.';choice=null;checked=false;}
+function pick(x){choice=x;$('feedback').className='';$('feedback').textContent='Ausgewählt: '+x+'. Jetzt USE drücken.';}
+function move(){history.push(pos);pos=(pos+1)%81;turn++;board();$('feedback').textContent='MOVE ausgeführt. UNMOVE stellt die vorherige Position wieder her.';}
+function undo(){if(!history.length){$('feedback').textContent='Kein Zug zum Zurücknehmen.';return;}pos=history.pop();turn=Math.max(0,turn-1);board();$('feedback').textContent='UNMOVE · vorherige Position wiederhergestellt.';}
+function use(){if(!choice){$('feedback').className='bad';$('feedback').textContent='Bitte zuerst eine Station auswählen.';return;}let q=questions[qi],ok=choice===q[1];if(ok){score++;$('feedback').className='good';$('feedback').textContent='RICHTIG · '+q[2];}else{$('feedback').className='bad';$('feedback').textContent='NICHT RICHTIG · '+q[2];}$('score').textContent='PUNKTE '+score;log(q[0]+' → '+choice+' · '+(ok?'RICHTIG':'FALSCH'));checked=true;[...$('answers').querySelectorAll('button')].forEach(b=>b.disabled=true);}
+function nextQuestion(){if(!checked){$('feedback').textContent='Erst antworten und USE drücken.';return;}qi=(qi+1)%questions.length;question();}
+function log(s){if($('log').textContent==='Noch keine Züge.')$('log').textContent='';$('log').innerHTML+='<div>• '+s+'</div>';}
+function resetGame(){qi=0;score=0;pos=40;choice=null;checked=false;history=[];turn=0;$('score').textContent='PUNKTE 0';$('log').textContent='Noch keine Züge.';board();question();}
+board();question();
+</script></body></html>
